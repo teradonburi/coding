@@ -1,22 +1,39 @@
-var gulp = require('gulp');
-var connect = require('gulp-connect');
-gulp.task('default', function () {
-    // place code for your default task here
-});
-gulp.task('connect', function () {
-    connect.server({
-        root: './',
-        livereload: true
-    });
-});
-gulp.task('html', function () {
-    gulp.src('./*.html').pipe(connect.reload());
-});
-gulp.task('watch', function () {
-    gulp.watch(['./*.html'], ['html']);
-    gulp.watch(['./*.css'], ['html']);
-    gulp.watch(['./*.less'], ['html']);
-    gulp.watch(['./*.js'], ['html']);
+var gulp = require('gulp'),
+    browserSync = require('browser-sync').create(),
+    reload = browserSync.reload,
+    nodemon = require('gulp-nodemon');
+
+gulp.task('nodemon', function (cb) {
+    var called = false;
+
+    return nodemon({
+            script: 'app.js',
+            ext: 'js html css less', // 監視するファイルの拡張子
+            ignore: ['node_modules'] // 監視しないファイル
+        })
+        .on('start', function () {
+            // サーバー起動時
+            if (!called) {
+                called = true;
+                cb();
+            }
+        })
+        .on('restart', function () {
+            // サーバー再起動時
+            setTimeout(function () {
+                reload();
+            }, 500);
+        });
 });
 
-gulp.task('default', ['connect', 'watch']); 
+gulp.task('browser-sync', ['nodemon'], function () {
+    browserSync.init(null, {
+        proxy: 'http://localhost:3000',
+        port: 7000
+    });
+});
+
+gulp.task('default', ['browser-sync'], function () {
+    // クライアント側のwatchタスクを記述
+
+});
