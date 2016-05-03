@@ -9,6 +9,7 @@
 
 ```bash
 $ git clone https://github.com/teradonburi/coding
+$ cd coding
 $ npm install
 $ gulp
 ```
